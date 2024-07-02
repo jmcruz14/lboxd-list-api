@@ -1,0 +1,12 @@
+# Python
+projectvenv
+__pycache__
+*.pyc
+
+# Shell scripts
+*.sh
+
+# Misc
+.test.env
+.env
+.DS_Store
