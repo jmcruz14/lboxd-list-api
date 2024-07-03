@@ -1,9 +1,8 @@
 '''Module containing all parsing scripts related to BeautifulSoup objects.'''
 
-import requests
-import json
-from requests.models import Response
+
 from bs4 import BeautifulSoup, Tag
+
 
 # insert a class object here for easier compact use
 def getFilmId(tag: Tag) -> str | None:

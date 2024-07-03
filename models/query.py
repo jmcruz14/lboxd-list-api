@@ -1,20 +1,9 @@
 from hashlib import sha512
 from pydantic import BaseModel
 
-class AggFuncQuery(BaseModel):
-  measure: str
-  field: str
-
-class StatQuery(BaseModel):
-  field: str
-  eq: str | int | bool | None = None
-  gt: int | None = None
-  lt: int | None = None
-
 class MovieStatsQuery(BaseModel):
-  query: list[StatQuery]
-  agg_func: AggFuncQuery | None = None
-  select: list[str] | None = None
+  query: list[dict]
+  select: list[str] | None = None # select resulting fields OR select all current fields
 
   # model_config = {
   #   "frozen": True

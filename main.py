@@ -37,7 +37,7 @@ from api.dev_only import router as dev_router
 # Saved app variable will be run in the shell script
 app = FastAPI(
   title="LetterboxdListDashboardAPI",
-  version="0.0.1",
+  version="0.3.1",
   lifespan=connect_server
 )
 origins = [
@@ -375,22 +375,37 @@ def update_movie(film_slug: str) -> Movie:
   # TODO: update movie metadata here
   return
 
-@app.get('/list-stats', tags=['letterboxd-list'], summary="Fetch list stats for list history instance")
-async def fetch_list_stat(
-  # db: Annotated[AsyncIOMotorClient, Depends(get_database)]
-):
+# @app.get('/list-stats', tags=['letterboxd-list'], summary="Fetch list stats for list history instance")
+# async def fetch_list_stat(
+#   db: Annotated[AsyncIOMotorClient, Depends(get_database)]
+# ):
   # return response based on request body
   # NOTE: for querying in list_history -> agg pipeline should be used
   # parameters:
   # - unwind the data field
+  # try:
+  #   await db.command('ping')
+  # except Exception as e:
+  #   raise HTTPException(status_code=500, detail="Database connection error")
+  
+  # pipeline = [
+  #   {
+  #     "$unwind": "$data"
+  #   }
+  # ]
 
+  # result = await query_db_agg(db, pipeline, 'list_history', 1)
+  # return {
+  #   "data": result,
+  #   "length": len(result)
+  # }
 
-  pass
+  # pass
 
 @app.post('/movie-stats', tags=['movie'], summary="Fetch single film stat across entire DB")
 async def fetch_film_stat(
     stat: MovieStatsQuery,
-    getCount: Annotated[bool, Query()] = None,
+    # getCount: Annotated[bool, Query()] = None,
     db: Annotated[AsyncIOMotorClient, Depends(get_database)] = None
   ):
   try:
@@ -400,44 +415,27 @@ async def fetch_film_stat(
   
   available_keys = Movie.model_fields.keys()
   stat = stat.model_dump()
-  query = stat['query']
-  agg_func = stat['agg_func'] if stat['agg_func'] is not None else None
+  queries = stat['query']
+  # agg_func = stat['agg_func'] if stat['agg_func'] is not None else None
 
   # ex: cast = Christopher de Leon; director = Ishmael Bernal
   pipeline = []
-  for item in query:
-    if item['field'] not in available_keys:
-      return HTTPException(status_code=400, detail=f"{stat} key not in model")
-    if item['field'] in ['film_id', 'film_slug', 'film_title']:
-      return HTTPException(status_code=403, detail="Selected key not permitted for fetching")
-    if item['eq'] is None:
-      raise HTTPException(status_code=406, detail="Equal value must be not null")
+  for query in queries:
+    # TODO; update by restricting supported key functions
+    # if query['field'] not in available_keys:
+    #   return HTTPException(status_code=400, detail=f"{stat} key not in model")
+    # if query['field'] in ['film_id', 'film_slug', 'film_title']:
+    #   return HTTPException(status_code=403, detail="Selected key not permitted for fetching")
+    # if query['eq'] is None:
+    #   raise HTTPException(status_code=406, detail="Equal value must be not null")
 
-    if not item['eq'] and not item['gt'] and not item['le']:
-      field = { "$ne": None }
-    # if item['gt'] or item['le']:
-
-    else:
-      field = { "$eq": item['eq'] }
-
-    pipeline.append({
-      "$match": {
-        item['field']: field
-      }
-    })
+    pipeline.append(query)
   
-  if getCount is True:
-    pipeline.append({
-      "$count": "total_count"
-    })
-  
-  if agg_func and getCount is False:
-    agg_query = agg_ops_dict(agg_func['measure'], agg_func['field'])
-    if agg_query is None:
-      raise HTTPException(status_code=405, detail="measure/key/val is not allowed")
-    pipeline.append(agg_query)
   result = await query_db_agg(db, pipeline, 'movie', 100)
-  return result
+  return {
+    "data": result,
+    "length": len(result),
+  }
 
 @app.get('/list-history', tags=['letterboxd-list'], summary="Fetch stored list-history item")
 async def parse_list(id: int, db: Annotated[AsyncIOMotorClient, Depends(get_database)], fetch_movies: bool = False) -> ListHistory:
