@@ -32,7 +32,7 @@ from scripts.utils import strip_tz, convert_to_serializable, strip_descriptive_s
 
 from dbconnect import connect_server, query_db, query_db_agg, update_db
 
-from api.dev_only import router as dev_router
+from api.router.dev_only import router as dev_router
 
 # Saved app variable will be run in the shell script
 app = FastAPI(
