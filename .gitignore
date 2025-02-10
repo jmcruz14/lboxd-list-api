@@ -1,10 +1,14 @@
 # Python
+.venv
 projectvenv
 __pycache__
 *.pyc
 
 # Shell scripts
 *.sh
+
+# Cache
+.pytest_cache
 
 # Misc
 .test.env

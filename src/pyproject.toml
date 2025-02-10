@@ -1,3 +1,28 @@
+[project]
+name = "letterboxd-list-api"
+version = "2025.0.1"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.110.1",
+  "motor>=3.7.0",
+  "pymongo",
+  "uvicorn",
+  "certifi",
+  "python-dotenv"
+]
+
+[project.optional-dependencies]
+webscraper = [
+  "beautifulsoup4>=4.12.3",
+]
+webscraper_test = [
+  "tqdm",
+  "beautifulsoup4>=4.12.3"
+]
+testing = [
+  "pytest"
+]
+
 [tool.pytest.ini_options]
 minversion = "8.0"
 env_files = [
