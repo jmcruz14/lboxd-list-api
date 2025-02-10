@@ -32,7 +32,8 @@ app = FastAPI(
 )
 origins = [
   "https://localhost:3000",
-  "http://localhost:3000"
+  "http://localhost:3000",
+  "https://top-250-website.vercel.app/"
 ]
 app.add_middleware(
   CORSMiddleware,
