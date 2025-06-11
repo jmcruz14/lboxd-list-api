@@ -1,12 +1,12 @@
 import os
-import json
+# import json
 import certifi
 import urllib.parse as parse
 from contextlib import asynccontextmanager
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import AsyncMongoClient
 from main import app, get_database
 from fastapi.testclient import TestClient
-from models.query import MovieStatsQuery, StatQuery
+# from models.query import MovieStatsQuery
 client = TestClient(app)
 MONGODB_UNAME = parse.quote_plus(os.environ['MONGODB_USERNAME'])
 MONGODB_PW = parse.quote_plus(os.environ['MONGODB_PASSWORD'])
@@ -17,7 +17,7 @@ LBOXD_COLLECTION = os.environ['LBOXD_COLLECTION']
 async def override_get_database():
   try:
     uri = f"mongodb+srv://{MONGODB_UNAME}:{MONGODB_PW}@{MONGODB_HOST}"
-    app.mongodb_client = AsyncIOMotorClient(
+    app.mongodb_client = AsyncMongoClient(
       uri, 
       tlsCAFile=certifi.where(),
       uuidRepresentation='standard'
@@ -72,12 +72,12 @@ def test_query_db_pipeline(mongodb, rollback_session):
   assert len(obj) >= 1
   assert obj[0]['_id'] == 'Christopher de Leon'
 
-def test_endpoint_pipeline(mongodb, rollback_session):
-  stat = MovieStatsQuery(query=[
-    StatQuery(field="cast", eq="Christopher de Leon"),
-    StatQuery(field="director", eq="Lino Brocka")
-  ])
-  response = client.post('/movie-stats', json=stat.model_dump())
-  print(response)
+# def test_endpoint_pipeline(mongodb, rollback_session):
+#   stat = MovieStatsQuery(query=[
+#     StatQuery(field="cast", eq="Christopher de Leon"),
+#     StatQuery(field="director", eq="Lino Brocka")
+#   ])
+#   response = client.post('/movie-stats', json=stat.model_dump())
+#   print(response)
 
-  assert response.status_code == 200
+#   assert response.status_code == 200

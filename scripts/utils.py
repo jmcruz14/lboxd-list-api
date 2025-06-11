@@ -2,7 +2,7 @@ import re
 from uuid import UUID
 from base64 import b64encode
 from bson import Binary
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Iterable
 from pydantic import BaseModel, create_model
 

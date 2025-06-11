@@ -1,12 +1,12 @@
 import os
-import pprint
-import json
+# import pprint
+# import json
 import certifi
 import asyncio
 from contextlib import asynccontextmanager
 from logging import info
 from fastapi import FastAPI
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import AsyncMongoClient
 from dotenv import load_dotenv
 import urllib.parse as parse
 
@@ -19,10 +19,10 @@ MONGODB_HOST = os.environ['MONGODB_HOST']
 LBOXD_COLLECTION = os.environ['LBOXD_COLLECTION']
 
 @asynccontextmanager
-async def connect_server(app: FastAPI) -> AsyncIOMotorClient | None:
+async def connect_server(app: FastAPI) -> AsyncMongoClient | None:
   uri = f"mongodb+srv://{MONGODB_UNAME}:{MONGODB_PW}@{MONGODB_HOST}"
   try:
-    app.mongodb_client = AsyncIOMotorClient(
+    app.mongodb_client = AsyncMongoClient(
       uri, 
       tlsCAFile=certifi.where(),
       uuidRepresentation='standard'
@@ -41,7 +41,7 @@ async def connect_server(app: FastAPI) -> AsyncIOMotorClient | None:
   except Exception as e:
     print('Error detected:', e)
 
-async def query_db(client: AsyncIOMotorClient, query: dict, collection: str, limit: int = 1) -> list:
+async def query_db(client: AsyncMongoClient, query: dict, collection: str, limit: int = 1) -> list:
   # client = await connect_server() # RuntimeWarning: coroutine was never awaited -- attach await to async func
   # NOTE: solve error for runtime warning: enable tracemalloc to get object allocation traceback
 
@@ -50,18 +50,19 @@ async def query_db(client: AsyncIOMotorClient, query: dict, collection: str, lim
   obj = [doc for doc in documents]
   return obj
 
-async def query_db_agg(client: AsyncIOMotorClient, pipeline: dict, collection: str, limit: int = 1) -> list:
+async def query_db_agg(client: AsyncMongoClient, pipeline: dict, collection: str, limit: int = 1) -> list:
   collection = client.get_collection(collection)
-  documents = await collection.aggregate(pipeline).to_list(limit)
+  cursor = await collection.aggregate(pipeline)
+  documents = await cursor.to_list(limit)
   obj = [doc for doc in documents]
   return obj
 
-async def update_db(client: AsyncIOMotorClient, document: dict, collection: str):
+async def update_db(client: AsyncMongoClient, document: dict, collection: str):
   collection = client.get_collection(collection)
   collection.insert_one(document)
   print('Document has been added!')
 
-async def delete_docs(client: AsyncIOMotorClient, query: dict, collection: str, single: bool):
+async def delete_docs(client: AsyncMongoClient, query: dict, collection: str, single: bool):
   collection = client.get_collection(collection)
   if single:
     count_ = 1
