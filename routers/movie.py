@@ -41,11 +41,17 @@ async def fetch_movie_history(
   id: int | str, 
   db: DatabaseDep
 ) -> MovieHistoryOut:
+  """
+    Fetches movie history data for a film.
+
+    Args:
+      id (int)
+      db (DatabaseDep)
+  """
   movie_service = MovieService(db)
     
   try:
       movie_history = await movie_service.get_movie_history_by_film_id(str(id))
-      
       if not movie_history:
           raise HTTPException(status_code=404, detail="Movie history not found")
           
