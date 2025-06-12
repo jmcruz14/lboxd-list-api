@@ -6,8 +6,7 @@ from pydantic import ValidationError
 
 from models.movie_data import Movie
 
-from scripts.rating import get_classic_histogram_rating
-from scripts.strings import not_numeric, replaceMultipleStrings
+from scripts import getClassicHistogramRating, not_numeric, replaceMultipleStrings
 
 from constants.url import fetchStatsUrl, fetchRatingHistogramUrl
 
@@ -100,7 +99,7 @@ class LetterboxdFilmPage:
       hist_url = fetchRatingHistogramUrl(self.film_slug)
       histRequest = requests.get(hist_url)
       histSoup = BeautifulSoup(histRequest.content, 'lxml')
-      histogram_rating = get_classic_histogram_rating(histSoup)
+      histogram_rating = getClassicHistogramRating(histSoup)
       
       return histogram_rating
     except Exception as e:

@@ -1,6 +1,4 @@
 import os
-# import pprint
-# import json
 import certifi
 import asyncio
 from contextlib import asynccontextmanager
@@ -9,6 +7,8 @@ from fastapi import FastAPI
 from pymongo import AsyncMongoClient
 from dotenv import load_dotenv
 import urllib.parse as parse
+
+from dependencies import set_database
 
 from pymongo.errors import ServerSelectionTimeoutError
 load_dotenv()
@@ -34,6 +34,9 @@ async def connect_server(app: FastAPI) -> AsyncMongoClient | None:
     else:
         info("Connected to database cluster.")
     
+    if hasattr(app, 'database'):
+      set_database(app.database)
+
     yield
     app.mongodb_client.close()
   except ServerSelectionTimeoutError as serverError:

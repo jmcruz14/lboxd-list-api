@@ -19,7 +19,7 @@ corrupted_character_conversion = {
   "ВҪ": "½"
 }
 
-def get_classic_histogram_rating(hist_dom) -> int:
+def getClassicHistogramRating(hist_dom) -> int:
   all_rating_el = hist_dom.find_all('li', 'rating-histogram-bar')
   RATING_COUNT_THRESHOLD = 40
   review_count = 0
